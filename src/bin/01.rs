@@ -39,33 +39,32 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let mut occurences = HashMap::new();
+    let mut occurrences = HashMap::new();
 
     let parts = input.lines();
     for (i, part) in parts.enumerate() {
-        let sides: Vec<&str> = part.split_whitespace().collect();
-        if sides.len() == 2 {
-            let [l, r] = [sides[0], sides[1]];
-            if occurences.get(l).is_none() {
-                occurences.insert(l, Occurrence { left: 1, right: 0 });
-            } else {
-                occurences.insert(l, Occurrence { left: occurences.get(l)?.left + 1, right: occurences.get(l)?.right });
-            }
+        let mut split = part.split_whitespace().map(|a| a.parse::<u32>().unwrap());
+        let l = split.next().unwrap();
+        let r = split.next().unwrap();
 
-            if !occurences.get(r).is_none() {
-                occurences.insert(r, Occurrence { left: occurences.get(r)?.left, right: occurences.get(r)?.right + 1 }  );
-            } else {
-                occurences.insert(r, Occurrence { left: 0, right: 1 }  );
-            }
-        }
+        occurrences
+            .entry(l)
+            .and_modify(|e: &mut Occurrence| e.left += 1)
+            .or_insert(Occurrence { left: 1, right: 0 });
+
+        occurrences.entry(r)
+            .and_modify(|e: &mut Occurrence| e.right += 1)
+            .or_insert(Occurrence { left: 0, right: 1 });
     }
 
-    let mut diff: u32 = 0;
-    for (lr) in occurences.iter() {
-        diff += lr.0.parse::<u32>().unwrap() * lr.1.left * lr.1.right;
-    }
-
-    Some(diff)
+    Some(
+        occurrences.iter()
+            .enumerate()
+            .map(|(_, (key, occurrence))| {
+                key * occurrence.left * occurrence.right
+            })
+            .sum()
+    )
 }
 
 #[cfg(test)]
