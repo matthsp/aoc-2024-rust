@@ -4,56 +4,43 @@
 
 Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.rust-lang.org/).
 
-Day 1 - done 🎉
-Day 2 -
-Day 3 -
-Day 4 -
-Day 5 -
-Day 6 -
-Day 7 -
-Day 8 -
-Day 9 -
-Day 10 -
-Day 11 -
-Day 12 -
-Day 13 -
-Day 14 -
-Day 15 -
-Day 16 -
-Day 17 -
-Day 18 -
-Day 19 -
-Day 20 -
-Day 21 -
-Day 22 -
-Day 23 -
-Day 24 -
-Day 25 -
+## State
+
+| Day | state|
+| -- | -- |
+| 1 | done 🎉 |
+| 2 | |
+| 3 | |
+| 4 | |
+| 5 | |
+| 6 | |
+| 7 | |
+| 8 | |
+| 9 | |
+| 10 | |
+| 11 | |
+| 12 | |
+| 13 | |
+| 14 | |
+| 15 | |
+| 16 | |
+| 17 | |
+| 18 | |
+| 19 | |
+| 20 | |
+| 21 | |
+| 22 | |
+| 23 | |
+| 24 | |
+| 25 | |
+
+## Template
+
+This project is based on the amazing template created by [Felix Spoettel](https://github.com/fspoettel), you can find the original template [here](https://github.com/fspoettel/advent-of-code-rust) 
 
 ---
 
-## Template setup
-
-This template supports all major OS (macOS, Linux, Windows).
-
-###  📝 Create your repository
-
-1.  Open [the template repository](https://github.com/fspoettel/advent-of-code-rust) on Github.
-2.  Click [Use this template](https://github.com/fspoettel/advent-of-code-rust/generate) and create your repository.
-3.  Clone your repository to your computer.
-4.  If you are solving a previous year's advent of code, change the `AOC_YEAR` variable in `.cargo/config.toml` to reflect the year you are solving.
-
-### 💻 Setup rust
-
-1.  Install the [Rust toolchain](https://www.rust-lang.org/tools/install).
-2.  (recommended) Install the [rust-analyzer](https://rust-analyzer.github.io/manual.html) extension for your code editor.
-3.  (optional) Install a native debugger. If you are using VS Code, [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) is a good option.
-
----
-
-✨ You can start solving puzzles now! Head to the [Usage section](#usage) to see how to use this template. If you like, you can configure [some optional features](#optional-template-features).
-
-## Usage
+## Template usage
 
 ### ➡️ Scaffold a day
 
