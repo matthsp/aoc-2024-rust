@@ -4,35 +4,23 @@
 
 Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.rust-lang.org/).
 
-## State
+<!--- advent_readme_stars table --->
+## 2024 Results
 
-| Day | state|
-| -- | -- |
-| 1 | done 🎉 |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
-| 6 | |
-| 7 | |
-| 8 | |
-| 9 | |
-| 10 | |
-| 11 | |
-| 12 | |
-| 13 | |
-| 14 | |
-| 15 | |
-| 16 | |
-| 17 | |
-| 18 | |
-| 19 | |
-| 20 | |
-| 21 | |
-| 22 | |
-| 23 | |
-| 24 | |
-| 25 | |
+| Day | Part 1 | Part 2 |
+| :---: | :---: | :---:  |
+| [Day 1](./src/bin/01.rs) | ⭐ | ⭐ |
+<!--- advent_readme_stars table --->
+
+<!--- benchmarking table --->
+## Benchmarks
+
+| Day | Part 1 | Part 2 |
+| :---: | :---: | :---:  |
+| [Day 1](./src/bin/01.rs) | `70.5µs` | `273.3µs` |
+
+**Total: 0.34ms**
+<!--- benchmarking table --->
 
 ## Template
 

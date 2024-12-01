@@ -2,10 +2,6 @@ use std::collections::HashMap;
 
 advent_of_code::solution!(1);
 
-struct Location {
-    id: u32,
-    position: u32,
-}
 
 struct Occurrence {
     left: u32,
@@ -13,29 +9,33 @@ struct Occurrence {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let mut left: Vec<Location> = Vec::new();
-    let mut right: Vec<Location> = Vec::new();
+    let (mut left, mut right) = input.lines().map(
+        |l| {
+            let mut split = l.split_whitespace();
+            let left = split.next();
+            let right = split.next();
 
-    let parts = input.lines();
-    for (i, part) in parts.enumerate() {
-        println!("{}", part);
-
-        let sides: Vec<&str> = part.split_whitespace().collect();
-        if sides.len() == 2 {
-            left.push(Location { id: sides[0].parse::<u32>().unwrap(), position: i as u32 });
-            right.push(Location { id: sides[1].parse::<u32>().unwrap(), position: i as u32 });
+            (
+                left.unwrap().parse::<u32>().unwrap(),
+                right.unwrap().parse::<u32>().unwrap(),
+            )
         }
-    }
+    ).collect::<(Vec<_>, Vec<_>)>();
 
-    left.sort_by(|a, b| a.id.cmp(&b.id));
-    right.sort_by(|a, b| a.id.cmp(&b.id));
+    left.sort();
+    right.sort();
 
     let mut diff: u32 = 0;
     for (i, l) in left.iter().enumerate() {
-        diff += l.id.abs_diff(right[i].id);
+        diff += l.abs_diff(right[i]);
     }
 
-    Some(diff)
+    Some(
+        left.iter()
+            .zip(right)
+            .map(|(a,b)| a.abs_diff(b))
+            .sum()
+    )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -62,7 +62,6 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let mut diff: u32 = 0;
     for (lr) in occurences.iter() {
-        println!("key: {}`` l: {}`` r:  {}`` diff:  {}", lr.0, lr.1.left,  lr.1.right, diff);
         diff += lr.0.parse::<u32>().unwrap() * lr.1.left * lr.1.right;
     }
 
