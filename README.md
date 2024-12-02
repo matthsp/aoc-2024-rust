@@ -7,9 +7,10 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 <!--- advent_readme_stars table --->
 ## 2024 Results
 
-| Day | Part 1 | Part 2 |
-| :---: | :---: | :---:  |
-| [Day 1](./src/bin/01.rs) | ⭐ | ⭐ |
+|             Day              | Part 1 | Part 2 |
+|:----------------------------:| :---: | :---:  |
+| [Day 1](./src/puzzles/01.md) | ⭐ | ⭐ |
+| [Day 2](./src/puzzles/02.md) | ⭐ | ⭐ |
 <!--- advent_readme_stars table --->
 
 <!--- benchmarking table --->
@@ -18,8 +19,9 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 | Day | Part 1 | Part 2 |
 | :---: | :---: | :---:  |
 | [Day 1](./src/bin/01.rs) | `74.3µs` | `104.9µs` |
+| [Day 2](./src/bin/02.rs) | `246.2µs` | `425.9µs` |
 
-**Total: 0.18ms**
+**Total: 0.85ms**
 <!--- benchmarking table --->
 
 ## Template
