@@ -11,6 +11,7 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 |:----------------------------:| :---: | :---:  |
 | [Day 1](./src/puzzles/01.md) | ⭐ | ⭐ |
 | [Day 2](./src/puzzles/02.md) | ⭐ | ⭐ |
+| [Day 2](./src/puzzles/03.md) | ⭐ | ⭐ |
 <!--- advent_readme_stars table --->
 
 <!--- benchmarking table --->
@@ -20,8 +21,9 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 | :---: | :---: | :---:  |
 | [Day 1](./src/bin/01.rs) | `74.3µs` | `104.9µs` |
 | [Day 2](./src/bin/02.rs) | `246.2µs` | `425.9µs` |
+| [Day 3](./src/bin/03.rs) | `623.4µs` | `687.6µs` |
 
-**Total: 0.85ms**
+**Total: 2.16ms**
 <!--- benchmarking table --->
 
 ## Template
@@ -82,7 +84,7 @@ cargo solve <day>
 # output:
 #     Finished dev [unoptimized + debuginfo] target(s) in 0.13s
 #     Running `target/debug/01`
-# Part 1: 42 (166.0ns)
+# Part 1: 42 (166.0ns)o
 # Part 2: 42 (41.0ns)
 ```
 
