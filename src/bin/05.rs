@@ -4,28 +4,35 @@ use std::collections::{HashMap, HashSet};
 advent_of_code::solution!(5);
 
 fn split_file(input: &str) -> (HashMap<u32, Vec<u32>>, Vec<Vec<u32>>) {
-    let splitted: Vec<&str> = input.split("\n\n").collect();
+    let parts: Vec<&str> = input.split("\n\n").collect();
 
-    let mut page_ordering_rules: HashMap<u32, Vec<u32>> = HashMap::new();
-    for ordering in splitted[0].lines() {
-        let pair: Vec<u32> = ordering.split('|')
-            .map(|n| n.parse::<u32>().unwrap())
-            .collect();
-        page_ordering_rules.entry(pair[1]).or_insert_with(Vec::new).push(pair[0]);
-    }
+    let page_ordering_rules: HashMap<u32, Vec<u32>> = parts[0].lines()
+        .map(|line| {
+            let mut pair_itr = line.split('|')
+                .map(|n| n.parse::<u32>().unwrap());
+            let val = pair_itr.next().unwrap();
+            let key = pair_itr.next().unwrap();
 
-    let update_page_numbers: Vec<Vec<u32>> = splitted[1].lines().map(
-        |l| l.split(',')
+            (key, val)
+        })
+        .fold(HashMap::new(), |mut map, (key, val)| {
+            map.entry(key).or_insert_with(Vec::new).push(val);
+            map
+        });
+
+    let update_page_numbers: Vec<Vec<u32>> = parts[1]
+        .lines()
+        .map(|l| l.split(',')
             .map(|n| n.parse::<u32>().unwrap())
-            .collect()
-    ).collect();
+            .collect())
+        .collect();
 
     (page_ordering_rules.into_iter().collect(), update_page_numbers)
 }
 
 fn is_update_valid(input: &Vec<u32>, rules: &HashMap<u32, Vec<u32>>) -> bool {
     let mut checked: HashSet<u32> = HashSet::new();
-    let mut to_check: Vec<u32> = input.clone();
+    let mut to_check: Vec<u32> = input.to_vec();
 
     while let Some(page) = to_check.pop() {
         if let Some(values) = rules.get(&page) {
