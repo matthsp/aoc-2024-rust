@@ -72,33 +72,19 @@ fn get_new_node(matrix: &Vec<Vec<usize>>, trailhead: Pos, offset: (isize, isize)
     None
 }
 
-fn traverse_trails(matrix: &Vec<Vec<usize>>, trail: &mut Trail, trailhead: Pos) {
-    for offset in vec![(1, 0), (0, -1), (0, 1), (-1, 0)] {
-        if let Some(pos) = get_new_node(matrix, trailhead, offset) {
-            if pos.val == 9 && !trail.has_node(&pos) {
-                trail.trail_end_count += 1;
-                trail.add_edge(trailhead, pos);
-                continue;
-            }
-            trail.add_edge(trailhead, pos);
-            traverse_trails(matrix, trail, pos);
-        }
-    }
-}
-
 pub fn part_one(input: &str) -> Option<usize> {
     let (matrix, trailheads) = parse(input);
 
     Some(trailheads.iter().map(
         |trailhead| {
             let mut trail = Trail { trail_end_count: 0, nodes: HashMap::new() };
-            traverse_trails(&matrix, &mut trail, trailhead.clone());
+            traverse_dfs(&matrix, &mut trail, trailhead.clone());
             trail.trail_end_count
         }
     ).sum())
 }
 
-fn count_paths_dfs(matrix: &Vec<Vec<usize>>, trail: &mut Trail, trailhead: Pos) -> usize {
+fn traverse_dfs(matrix: &Vec<Vec<usize>>, trail: &mut Trail, trailhead: Pos) -> usize {
     if trailhead.val == 9 { return 1; }
     let mut path_count = 0;
 
@@ -109,7 +95,7 @@ fn count_paths_dfs(matrix: &Vec<Vec<usize>>, trail: &mut Trail, trailhead: Pos) 
             }
             trail.add_node(pos);
             trail.add_edge(trailhead, pos);
-            path_count += count_paths_dfs(matrix, trail, pos);
+            path_count += traverse_dfs(matrix, trail, pos);
         }
     }
     path_count
@@ -121,7 +107,7 @@ pub fn part_two(input: &str) -> Option<usize> {
     Some(trailheads.iter().map(
         |trailhead| {
             let mut trail = Trail { trail_end_count: 0, nodes: HashMap::new() };
-            count_paths_dfs(&matrix, &mut trail, trailhead.clone())
+            traverse_dfs(&matrix, &mut trail, trailhead.clone())
         }
     ).sum())
 }
