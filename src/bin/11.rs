@@ -2,36 +2,11 @@ use std::collections::HashMap;
 
 advent_of_code::solution!(11);
 
-fn parse(input: &str) -> Vec<String> {
-    input.trim().split_whitespace().map(String::from).collect()
+fn parse(input: &str) -> Vec<i64> {
+    input.split_whitespace().map(|n| n.parse().unwrap()).collect()
 }
 
-fn apply_rule(stone: &str) -> Vec<String> {
-    match stone {
-        "0" => vec!["1".to_string()],
-        s if s.len() % 2 == 0 => {
-            let mid = s.len() / 2;
-            vec![s[..mid].to_string(), s[mid..].parse::<usize>().unwrap().to_string()]
-        },
-        _ => vec![(stone.parse::<usize>().unwrap() * 2024).to_string()]
-    }
-}
-
-pub fn part_one(input: &str) -> Option<u32> {
-    let mut stones = parse(input);
-
-    for _ in 0..25 {
-        let mut new_stones: Vec<String> = Vec::new();
-        for stone in stones.iter() {
-            new_stones.extend(apply_rule(stone));
-        }
-        stones = new_stones;
-    }
-
-    Some(stones.len() as u32)
-}
-
-fn apply_rule_number_based(stone: i64) -> (i64, Option<i64>) {
+fn apply_rule(stone: i64) -> (i64, Option<i64>) {
     match stone {
         0 => (1, None),
         // Use power of ten to split number in two
@@ -43,30 +18,41 @@ fn apply_rule_number_based(stone: i64) -> (i64, Option<i64>) {
     }
 }
 
+fn iterate_stones(stones: Vec<i64>, iteration_count: i8) -> i64 {
+    let mut stone_map = stones.iter().map(|s| (*s, 1_i64)).collect();
 
-
-pub fn part_two(input: &str) -> Option<i64> {
-    let stones: Vec<i64> = input.split_whitespace().map(|s| s.parse::<i64>().unwrap()).collect();
-    // Save the count for each stone (index: stone, value: count for current iteration)
-    let mut stones_map: HashMap<i64, i64> = stones.iter().map(|s| (*s, 1_i64)).collect();
-
-    for _ in 0..75 {
+    for _ in 0..iteration_count {
         let mut new_stones_map: HashMap<i64, i64> = HashMap::new();
 
         // For each stone, apply rule and add to map the new stone(s) and counts
-        for (stone, count) in stones_map {
-            let result = apply_rule_number_based(stone);
+        for (stone, count) in stone_map {
+            let result = apply_rule(stone);
             *new_stones_map.entry(result.0).or_default() += count;
             if result.1.is_some() {
                 *new_stones_map.entry(result.1.unwrap()).or_default() += count;
             }
         }
 
-        stones_map = new_stones_map;
+        stone_map = new_stones_map;
     }
 
-    // Fetch all stone counts
-    Some(stones_map.values().sum())
+    stone_map.values().sum()
+}
+
+pub fn part_one(input: &str) -> Option<i64> {
+    let stones = parse(input);
+
+    let result = iterate_stones(stones, 25_i8);
+
+    Some(result)
+}
+
+pub fn part_two(input: &str) -> Option<i64> {
+    let stones = parse(input);
+
+    let result = iterate_stones(stones, 75_i8);
+
+    Some(result)
 }
 
 #[cfg(test)]
@@ -76,7 +62,7 @@ mod tests {
     #[test]
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, Some(22));
+        assert_eq!(result, Some(55312));
     }
 
     #[test]
