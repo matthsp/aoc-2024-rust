@@ -71,3 +71,15 @@ mod tests {
         assert_eq!(result, Some(65601038650482));
     }
 }
+
+// Awesome stuff learned today:
+// Map stuff:
+// * Vec to HashMap using (<key>, <val>) mapping: <vec>.iter().map(|s| (<key>,<val>)).collect();
+// * Map or_default() automatically fill value with type
+// * Increment value in map: *<var>.entry(<key>).or_default() += count;
+//
+// Numeric stuff:
+// use power of tens to identify digit count in number:  <number>.checked_<type>log10().unwrap_or(0)
+// use power of tens to split a number in two:
+//     let divisor = 10_i64.pow(<number>.checked_<type>log10().unwrap_or(0) / 2 + 1);
+//     let (first_part, second_part) = (<number>/divisor,<number>%divisor)
