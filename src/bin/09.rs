@@ -1,5 +1,3 @@
-use std::ops::Mul;
-
 advent_of_code::solution!(9);
 
 fn parse(input: &str) -> Vec<u32> {
@@ -139,8 +137,7 @@ pub fn part_two(input: &str) -> Option<usize> {
             let blocks: Vec<Block> = b.indexes.iter().map(|i| Block { index: *i, file_id: b.file_id }).collect();
             return blocks;
         })
-        .enumerate()
-        .for_each(|(index, b)| {
+        .for_each(|b| {
             result += b.index * b.file_id;
         });
 

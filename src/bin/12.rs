@@ -9,7 +9,6 @@ struct Pos {
 }
 
 struct Polygon {
-    region_type: char,
     coordinates: HashSet<Pos>,
     area: i32,
     perimeter: i32,
@@ -49,7 +48,6 @@ fn flood_fill( matrix: &Vec<Vec<char>>, start_i: usize, start_j: usize, region_t
     }
 
     Polygon {
-        region_type,
         coordinates,
         area,
         perimeter,
@@ -119,18 +117,24 @@ fn get_corner_count(coordinates: &HashSet<Pos>) -> i32 {
         };
 
         // Inner corners:
-        if (!coordinates.contains(&get_neighbour(*coordinate, (-1,1))) &&
+        if !coordinates.contains(&get_neighbour(*coordinate, (-1,1))) &&
             coordinates.contains(&get_neighbour(*coordinate, (-1,0))) &&
-            coordinates.contains(&get_neighbour(*coordinate, (0,1)))) ||
-            (!coordinates.contains(&get_neighbour(*coordinate, (1,1))) &&
+            coordinates.contains(&get_neighbour(*coordinate, (0,1))) {
+            corner_count += 1;
+        }
+        if !coordinates.contains(&get_neighbour(*coordinate, (1,1))) &&
             coordinates.contains(&get_neighbour(*coordinate, (1,0))) &&
-            coordinates.contains(&get_neighbour(*coordinate, (0,1)))) ||
-            (!coordinates.contains(&get_neighbour(*coordinate, (-1,-1))) &&
+            coordinates.contains(&get_neighbour(*coordinate, (0,1))) {
+            corner_count += 1;
+        }
+        if !coordinates.contains(&get_neighbour(*coordinate, (-1,-1))) &&
             coordinates.contains(&get_neighbour(*coordinate, (-1,0))) &&
-            coordinates.contains(&get_neighbour(*coordinate, (0,-1)))) ||
-            (!coordinates.contains(&get_neighbour(*coordinate, (1,-1))) &&
+            coordinates.contains(&get_neighbour(*coordinate, (0,-1))) {
+            corner_count += 1;
+        }
+        if !coordinates.contains(&get_neighbour(*coordinate, (1,-1))) &&
             coordinates.contains(&get_neighbour(*coordinate, (1,0)))  &&
-            coordinates.contains(&get_neighbour(*coordinate, (0,-1)))) {
+            coordinates.contains(&get_neighbour(*coordinate, (0,-1))) {
             corner_count += 1;
         }
     }

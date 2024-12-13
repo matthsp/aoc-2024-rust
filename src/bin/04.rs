@@ -75,7 +75,6 @@ fn count_x_mas_in_direction(matrix: &Vec<Vec<char>>, position: &Position, direct
     let mut m_pos: Vec<Position> = Vec::new();
     let mut s_pos: Vec<Position> = Vec::new();
     if rl_mode {
-        let new_y =
         m_pos.extend([ Position { x: position.x + 1, y: position.y + direction.y }, Position { x: position.x - 1, y: position.y + direction.y } ]);
         s_pos.extend([ Position { x: position.x + 1, y: position.y - direction.y }, Position { x: position.x - 1, y: position.y - direction.y } ]);
     } else {

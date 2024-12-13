@@ -25,11 +25,6 @@ pub fn part_one(input: &str) -> Option<u32> {
     left.sort();
     right.sort();
 
-    let mut diff: u32 = 0;
-    for (i, l) in left.iter().enumerate() {
-        diff += l.abs_diff(right[i]);
-    }
-
     Some(
         left.iter()
             .zip(right)
@@ -41,8 +36,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let mut occurrences = HashMap::new();
 
-    let parts = input.lines();
-    for (i, part) in parts.enumerate() {
+    for part in input.lines() {
         let mut split = part.split_whitespace().map(|a| a.parse::<u32>().unwrap());
         let l = split.next().unwrap();
         let r = split.next().unwrap();
