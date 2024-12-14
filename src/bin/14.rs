@@ -79,38 +79,39 @@ pub fn part_one(input: &str) -> Option<usize> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
+    // The first approach was to output the first 250 results in a file
+    // A first pattern found (Vertical) at 2, then 103, 204, etc.
+    // Horizontal pattern where starting at 75, then 178, etc.
+    // I estimated around 7670-80 the tree should appear.
+    // It did not work, so I printed all pattern for time < 10 000 seconds
+    // and got it right by analyzing the results around there,
     let mut robots = parse(input);
     let mut i = 0;
 
+    let robot_count = robots.len();
     loop {
         i += 1;
 
-        // First pattern found (Vertical) at 2, then 103, 204, etc.
-        // Horizontal pattern where starting at 75, then 178, etc.
-        // I estimated around 6870-80 the tree should appear,
-        // and got it right by analyzing the results around there
-        if i % 101 == 2 {
-            println!();
-            println!("---------------{}---------------",i);
-            println!();
-        }
         let mut new_robots: Vec<(Pos, Pos)> = Vec::new();
+        let mut result_pos_map: HashMap<Pos, usize> = HashMap::new();
+
         robots.iter().for_each(
             |robot| {
-                new_robots.push((move_robot(robot, (101, 103), 1), robot.1))
+                let new_robot = move_robot(robot, (101, 103), 1);
+                *result_pos_map.entry(new_robot).or_default() += 1;
+                new_robots.push((new_robot, robot.1));
             }
         );
 
-        if i % 101 == 2 {
-            display_grid(new_robots.iter().map(|r| r.0).collect(), 101, 103);
+        // The robots are aligning, and seems like when they do so they dont overlap!
+        if result_pos_map.keys().len() == robot_count {
+            break;
         }
 
         robots = new_robots.clone();
-
-        if i > 6870 { break }
     }
 
-    Some(0)
+    Some(i)
 }
 
 fn display_grid(positions: Vec<Pos>, width: usize, height: usize) {
