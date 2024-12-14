@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::fmt::Debug;
 use std::ops::{Add, Sub};
 
+
 #[derive(Debug, Clone, Copy)]
 pub enum Direction {
     North,
@@ -17,8 +18,8 @@ pub enum Direction {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Pos {
-    pub x: usize,
-    pub y: usize,
+    pub x: isize,
+    pub y: isize,
 }
 
 // Implement Add trait for Pos
@@ -44,7 +45,7 @@ impl Sub for Pos {
 
 impl Pos {
     // Constructor method to create a new Pos
-    pub fn new(x: usize, y: usize) -> Self { Pos { x, y } }
+    pub fn new(x: isize, y: isize) -> Self { Pos { x, y } }
 
     pub fn neighbor(&self, direction: Direction) -> Pos {
         let (new_x, new_y) = match direction {
