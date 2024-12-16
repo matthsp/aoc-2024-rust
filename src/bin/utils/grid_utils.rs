@@ -1,10 +1,9 @@
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::fmt::Debug;
 use std::ops::{Add, Sub};
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Direction {
     North,
     NorthEast,
@@ -115,21 +114,17 @@ impl Edge {
     }
 }
 
-pub fn parse_grid<T>(input: &str) -> Vec<Vec<T>>
-where
-    T: FromStr,
-    <T as FromStr>::Err: Debug,
+pub fn parse_grid(input: &str) -> Vec<Vec<char>>
 {
     input.lines()
         .map(|line| {
-            line.split_whitespace()
-                .map(|word| word.parse::<T>().unwrap())
-                .collect::<Vec<T>>()
+            line.chars()
+                .collect::<Vec<char>>()
         })
-        .collect::<Vec<Vec<T>>>()
+        .collect()
 }
 
-fn get_value_from_grid<T>(grid: &Vec<Vec<T>>, x: usize, y: usize) -> Option<&T> {
+pub fn get_value_from_grid<T>(grid: &Vec<Vec<T>>, x: usize, y: usize) -> Option<&T> {
     if x < grid.len() && y < grid[0].len() {
         Some(&grid[x][y])
     } else {
