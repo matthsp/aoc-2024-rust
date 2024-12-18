@@ -42,37 +42,29 @@ fn process_operation(computer: &mut Computer, opcode_pos: usize) -> Option<usize
 
     match opcode {
         0 => {
-            // println!("Ops<0> - A = a / {}", 2_i32.pow(combo_val as u32));
             computer.registers.insert("A".to_string(), a / 2_i32.pow(combo_val as u32) as i64);
         },
         1 => {
-            // println!("Ops<1> - B = b ^ {}", literal_val);
             computer.registers.insert("B".to_string(), b ^ literal_val);
         },
         2 => {
-            // println!("Ops<2> - B = {} % 8", combo_val);
             computer.registers.insert("B".to_string(), combo_val % 8);
         },
         3 => {
             if a > 0 {
-                // println!("Ops<3> - jump({})", literal_val);
                 return Some(literal_val as usize);
             }
         },
         4 => {
-            // println!("Ops<4> - B = b ^ c");
             computer.registers.insert("B".to_string(), b ^ c);
         },
         5 => {
-            // println!("Ops<5> - OUT({} % 8)", combo_val);
             computer.outputs.push(combo_val % 8)
         },
         6 => {
-            // println!("Ops<6> - B = a / {}", 2_i32.pow(combo_val as u32));
             computer.registers.insert("B".to_string(), a / 2_i32.pow(combo_val as u32) as i64);
         },
         7 => {
-            // println!("Ops<7> - C = a / {}", 2_i32.pow(combo_val as u32));
             computer.registers.insert("C".to_string(), a / 2_i32.pow(combo_val as u32) as i64);
         },
         _ => unimplemented!()
@@ -120,7 +112,6 @@ pub fn part_one(input: &str) -> Option<String> {
         } else {
             current_pointer += 2;
         }
-        println!("{:?}", computer);
     }
 
     Some(computer.outputs.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(","))
