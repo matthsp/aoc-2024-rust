@@ -15,6 +15,13 @@ pub enum Direction {
     NorthWest,
 }
 
+pub const CARDINAL_DIRECTIONS: [Direction; 4] = [
+    Direction::West,
+    Direction::North,
+    Direction::East,
+    Direction::South,
+];
+
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Pos {
     pub x: isize,
