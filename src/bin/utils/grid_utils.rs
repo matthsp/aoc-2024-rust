@@ -68,6 +68,17 @@ impl Pos {
         Pos { x: new_x, y: new_y }
     }
 
+    pub fn neighbor_in_grid(&self, direction: Direction, grid: &Vec<Vec<char>>) -> Option<(Pos, char)> {
+        let neighbor = self.neighbor(direction);
+        let (x, y ) = (neighbor.x as usize, neighbor.y as usize);
+
+        if x < 0 || x >= grid.len() || y < 0 || y >= grid[0].len() {
+            return None;
+        }
+
+        Some((neighbor, grid[x][y]))
+    }
+
     pub fn neighbors(&self, directions: &[Direction]) -> Vec<Pos> {
         directions.iter()
             .map(|&direction| self.neighbor(direction))
