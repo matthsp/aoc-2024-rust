@@ -139,6 +139,15 @@ pub fn get_value_from_grid<T>(grid: &Vec<Vec<T>>, x: usize, y: usize) -> Option<
     }
 }
 
+pub fn get_value_from_grid_pos<T>(grid: &Vec<Vec<T>>, pos: Pos) -> Option<&T> {
+    let (x, y ) = (pos.x as usize, pos.y as usize);
+    if x < grid.len() && y < grid[0].len() {
+        Some(&grid[x][y])
+    } else {
+        None
+    }
+}
+
 pub struct Graph {
     pub nodes: HashMap<Pos, Vec<Pos>>,
 }
