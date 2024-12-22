@@ -1,103 +1,96 @@
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
-use crate::utils::{Direction, Pos, CARDINAL_DIRECTIONS};
-
-#[path = "utils/grid_utils.rs"] mod utils;
 
 advent_of_code::solution!(21);
 
-fn get_dir_char(dir: &Direction) -> char {
-    match dir {
-        Direction::East => '^',
-        Direction::West=> 'v',
-        Direction::North => '<',
-        Direction::South => '>',
-        _ => unimplemented!()
-    }
+fn get_keypad() -> Vec<Vec<u8>> {
+    vec![
+        vec![b'7',b'8',b'9',],
+        vec![b'4',b'5',b'6',],
+        vec![b'1',b'2',b'3',],
+        vec![b' ',b'0',b'A',],
+    ]
 }
 
-fn get_map_ref(grid: &Vec<Vec<char>>) -> HashMap<char, Pos> {
-    grid.iter().enumerate().flat_map(
-        |(i, l)| {
-            l.iter().enumerate().filter_map(move |(j, &c)| {
-                Some((c, Pos::new(i as isize, j as isize)))
-            })
+fn get_control_pad() -> Vec<Vec<u8>> {
+    vec![
+        vec![b' ',b'^',b'A',],
+        vec![b'<',b'v',b'>',],
+    ]
+}
+
+pub const DIRS: [(i32, i32); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
+
+fn find_shortest_paths(keypad: &[[u8; 3]], from: u8, to: u8) -> Vec<Vec<u8>> {
+    // find 'from' and 'to' on keypad
+    let mut start = (0, 0);
+    let mut end = (0, 0);
+    for (y, row) in keypad.iter().enumerate() {
+        for (x, &c) in row.iter().enumerate() {
+            if c == from {
+                start = (x, y);
+            }
+            if c == to {
+                end = (x, y);
+            }
         }
-    ).collect()
-}
+    }
 
-fn get_keypad() -> (Vec<Vec<char>>, Pos, HashMap<char, Pos>) {
-    let keypad = vec![
-        vec!['7','8','9',],
-        vec!['4','5','6',],
-        vec!['1','2','3',],
-        vec![' ','0','A',],
-    ];
-    let map = get_map_ref(&keypad);
-
-    (keypad, Pos::new(3, 2), map)
-}
-
-fn get_control_pad() ->  (Vec<Vec<char>>, Pos, HashMap<char, Pos>) {
-    let control_pad = vec![
-        vec![' ','^','A',],
-        vec!['<','v','>',],
-    ];
-    let map = get_map_ref(&control_pad);
-    (control_pad, Pos::new(0, 2), map)
-}
-
-fn find_shortest_paths(grid: &Vec<Vec<char>>, start: Pos, end: Pos) -> Vec<Vec<char>> {
     if start == end {
-        return vec![vec!['A']];
+        return vec![vec![b'A']];
     }
 
-    let mut dists = vec![[usize::MAX; 3]; grid.len()];
+    // flood fill keypad to find the shortest distances
+    let mut dists = vec![[usize::MAX; 3]; keypad.len()];
     let mut queue = VecDeque::new();
-    queue.push_back((start, 0));
+    queue.push_back((start.0, start.1, 0));
 
-    while let Some((pos, steps)) = queue.pop_front() {
-        dists[pos.x as usize][pos.y as usize] = steps;
-
-        for dir in CARDINAL_DIRECTIONS {
-            let neighbor = pos.neighbor_in_grid(dir, grid);
-            if neighbor.is_none() {
-                continue;
-            }
-
-            let (new_pos, val) = neighbor.unwrap();
-            let nx = new_pos.x as usize;
-            let ny = new_pos.y as usize;
-            if val != ' ' && dists[nx][ny] == usize::MAX {
-                queue.push_back((new_pos, steps + 1));
+    while let Some((x, y, steps)) = queue.pop_front() {
+        dists[y][x] = steps;
+        for (dx, dy) in DIRS {
+            let nx = x as i32 + dx;
+            let ny = y as i32 + dy;
+            if nx >= 0
+                && ny >= 0
+                && nx < 3
+                && ny < keypad.len() as i32
+                && keypad[ny as usize][nx as usize] != b' '
+                && dists[ny as usize][nx as usize] == usize::MAX
+            {
+                queue.push_back((nx as usize, ny as usize, steps + 1));
             }
         }
     }
 
+    // backtrack from 'end' back to 'start' and collect all paths
     let mut paths = Vec::new();
     let mut stack = Vec::new();
-    stack.push((end, vec!['A']));
-
-    while let Some((pos, path)) = stack.pop() {
-        if pos == start {
+    stack.push((end.0, end.1, vec![b'A']));
+    while let Some((x, y, path)) = stack.pop() {
+        if x == start.0 && y == start.1 {
             paths.push(path);
             continue;
         }
-        for (i, dir) in CARDINAL_DIRECTIONS.iter().enumerate() {
-            let neighbor = pos.neighbor_in_grid(*dir, grid);
-            if neighbor.is_none() {
-                continue;
-            }
-
-            let (new_pos, val) = neighbor.unwrap();
-            let nx = new_pos.x as usize;
-            let ny = new_pos.y as usize;
-
-            if dists[nx][ny] < dists[pos.x as usize][pos.y as usize] {
-                let dir_char = get_dir_char(dir);
-                let mut new_path = vec![dir_char];
+        for (i, (dx, dy)) in DIRS.iter().enumerate() {
+            let nx = x as i32 + dx;
+            let ny = y as i32 + dy;
+            if nx >= 0
+                && ny >= 0
+                && nx < 3
+                && ny < keypad.len() as i32
+                && dists[ny as usize][nx as usize] < dists[y][x]
+            {
+                // do everything in reverse
+                let c = match i {
+                    0 => b'<',
+                    1 => b'^',
+                    2 => b'>',
+                    3 => b'v',
+                    _ => panic!(),
+                };
+                let mut new_path = vec![c];
                 new_path.extend(&path);
-                stack.push((new_pos, new_path));
+                stack.push((nx as usize, ny as usize, new_path));
             }
         }
     }
@@ -106,40 +99,35 @@ fn find_shortest_paths(grid: &Vec<Vec<char>>, start: Pos, end: Pos) -> Vec<Vec<c
 }
 
 fn find_shortest_sequence(
-    input: &Vec<char>,
+    s: &[u8],
     depth: usize,
     highest: bool,
-    cursors: &mut Vec<char>,
-    keypad: &(Vec<Vec<char>>, Pos, HashMap<char, Pos>),
-    control_pad: &(Vec<Vec<char>>, Pos, HashMap<char, Pos>),
-    cache: &mut HashMap<(Vec<char>, usize, char), usize>,
+    cursors: &mut Vec<u8>,
+    numeric: &[[u8; 3]],
+    diagonal: &[[u8; 3]],
+    cache: &mut HashMap<(Vec<u8>, usize, u8), usize>,
 ) -> usize {
-    let cache_key = (input.clone(), depth, cursors[depth]);
-
+    let cache_key = (s.to_vec(), depth, cursors[depth]);
     if let Some(cached) = cache.get(&cache_key) {
         return *cached;
     }
 
     let mut result = 0;
-    for c in input {
-        let (grid, _, map) = if highest { keypad } else { control_pad };
-        let start = map.get(&cursors[depth]).unwrap();
-        let end = *map.get(c).unwrap();
-
-        let paths = find_shortest_paths(grid, *start, end);
-
+    for &c in s {
+        let paths =
+            find_shortest_paths(if highest { numeric } else { diagonal }, cursors[depth], c);
         if depth == 0 {
             result += paths.into_iter().map(|l| l.len()).min().unwrap();
         } else {
             result += paths
                 .into_iter()
                 .map(|p| {
-                    find_shortest_sequence(&p, depth - 1, false, cursors, keypad, control_pad, cache)
+                    find_shortest_sequence(&p, depth - 1, false, cursors, numeric, diagonal, cache)
                 })
                 .min()
                 .unwrap();
         }
-        cursors[depth] = *c;
+        cursors[depth] = c;
     }
 
     cache.insert(cache_key, result);
@@ -148,20 +136,30 @@ fn find_shortest_sequence(
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
-    let keypad = get_keypad();
-    let control_pad = get_control_pad();
+    let numeric_pad = vec![
+        [b'7', b'8', b'9'],
+        [b'4', b'5', b'6'],
+        [b'1', b'2', b'3'],
+        [b' ', b'0', b'A'],
+    ];
+    let control_pad = vec![
+        [b' ', b'^', b'A'],
+        [b'<', b'v', b'>']
+    ];
+
     let mut cache = HashMap::new();
+    let lines = input.lines().collect::<Vec<_>>();
 
     let mut total = 0;
-    for l in input.lines() {
+    for l in lines {
 
-        let mut cursors = vec!['A'; 3];
+        let mut cursors = vec![b'A'; 3];
         let len = find_shortest_sequence(
-            &l.chars().collect(),
+            l.as_bytes(),
             2,
             true,
             &mut cursors,
-            &keypad,
+            &numeric_pad,
             &control_pad,
             &mut cache,
         );
@@ -173,8 +171,40 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(total)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+pub fn part_two(input: &str) -> Option<usize> {
+    let numeric_pad = vec![
+        [b'7', b'8', b'9'],
+        [b'4', b'5', b'6'],
+        [b'1', b'2', b'3'],
+        [b' ', b'0', b'A'],
+    ];
+    let control_pad = vec![
+        [b' ', b'^', b'A'],
+        [b'<', b'v', b'>']
+    ];
+
+    let mut cache = HashMap::new();
+    let lines = input.lines().collect::<Vec<_>>();
+
+    let mut total = 0;
+    for l in lines {
+
+        let mut cursors = vec![b'A'; 26];
+        let len = find_shortest_sequence(
+            l.as_bytes(),
+            25,
+            true,
+            &mut cursors,
+            &numeric_pad,
+            &control_pad,
+            &mut cache,
+        );
+
+        let n = l[0..3].parse::<usize>().unwrap();
+        total += n * len;
+    }
+
+    Some(total)
 }
 
 #[cfg(test)]
