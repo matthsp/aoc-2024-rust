@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 use std::fmt::Debug;
 use std::ops::{Add, Sub};
 
@@ -159,38 +160,67 @@ pub fn get_value_from_grid_pos<T>(grid: &Vec<Vec<T>>, pos: Pos) -> Option<&T> {
     }
 }
 
-pub struct Graph {
-    pub nodes: HashMap<Pos, Vec<Pos>>,
+pub struct Graph<N> {
+    pub nodes: HashMap<N, HashSet<N>>,
 }
 
-impl Graph {
-    fn add_node(&mut self, pos: Pos) {
-        self.nodes.entry(pos).or_insert(Vec::new());
+impl<N: Eq + Hash + Clone> Graph<N> {
+    pub fn new() -> Self {
+        Graph { nodes: HashMap::new() }
     }
 
-    fn has_node(&self, pos: &Pos) -> bool {
-        self.nodes.get(pos).is_some()
+    pub fn add_node(&mut self, node: N) {
+        self.nodes.entry(node).or_insert_with(HashSet::new);
     }
 
-    fn add_edge(&mut self, pos1: Pos, pos2: Pos) {
-        if !self.has_edge(pos1, pos2) {
-            self.nodes.entry(pos1).or_insert_with(Vec::new);
-            self.nodes.entry(pos2).or_insert_with(Vec::new);
+    pub fn has_node(&self, node: &N) -> bool {
+        self.nodes.get(node).is_some()
+    }
 
-            self.nodes.get_mut(&pos1).unwrap().push(pos2);
-            self.nodes.get_mut(&pos2).unwrap().push(pos1);
+    pub fn add_edge(&mut self, node1: N, node2: N) {
+        if !self.has_edge(&node1, &node2) {
+            self.nodes.entry(node1.clone()).or_insert_with(HashSet::new);
+            self.nodes.entry(node2.clone()).or_insert_with(HashSet::new);
+
+            self.nodes.get_mut(&node1).unwrap().insert(node2.clone());
+            self.nodes.get_mut(&node2).unwrap().insert(node1);
         }
     }
 
-    fn has_edge(&self, pos1: Pos, pos2: Pos) -> bool {
-        if let Some(neighbors) = self.neighbors(&pos1) {
-            neighbors.contains(&pos2)
+    pub fn has_edge(&self, node1: &N, node2: &N) -> bool {
+        if let Some(neighbors) = self.neighbors(node1) {
+            neighbors.contains(node2)
         } else {
             false
         }
     }
 
-    fn neighbors(&self, pos: &Pos) -> Option<&Vec<Pos>> {
-        self.nodes.get(pos)
+    pub fn neighbors(&self, node: &N) -> Option<&HashSet<N>> {
+        self.nodes.get(node)
+    }
+}
+
+fn bron_kerbosch<'a>(
+    g: &HashMap<&'a str, HashSet<&'a str>>,
+    r: &mut HashSet<&'a str>,
+    mut p: HashSet<&'a str>,
+    mut x: HashSet<&'a str>,
+    cliques: &mut Vec<HashSet<&'a str>>,
+) {
+    if p.is_empty() {
+        if x.is_empty() {
+            cliques.push(r.clone());
+        }
+        return;
+    }
+    while let Some(n) = p.iter().copied().next() {
+        let neighbours = &g[n];
+        let p2 = p.intersection(neighbours).copied().collect();
+        let x2 = x.intersection(neighbours).copied().collect();
+        r.insert(n);
+        bron_kerbosch(g, r, p2, x2, cliques);
+        r.remove(n);
+        p.remove(n);
+        x.insert(n);
     }
 }
