@@ -31,6 +31,8 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 | [Day 20](https://adventofcode.com/2024/day/20) | ⭐ |   ⭐    |
 | [Day 21](https://adventofcode.com/2024/day/21) | ⭐ |   ⭐    |
 | [Day 22](https://adventofcode.com/2024/day/22) | ⭐ |   ⭐    |
+| [Day 23](https://adventofcode.com/2024/day/23) | ⭐ |   ⭐    |
+| [Day 24](https://adventofcode.com/2024/day/24) | ⭐ |   ⭐    |
 
 <!--- advent_readme_stars table --->
 
@@ -61,8 +63,9 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 | [Day 21](./src/bin/21.rs) | `187.9µs` | `1.4ms` |
 | [Day 22](./src/bin/22.rs) | `6.9ms` | `824.8ms` |
 | [Day 23](./src/bin/23.rs) | `13.3ms` | `186.2ms` |
+| [Day 24](./src/bin/24.rs) | `824.6µs` | `277.3µs` |
 
-**Total: 2963.06ms**
+**Total: 2964.16ms**
 <!--- benchmarking table --->
 
 ## Template
