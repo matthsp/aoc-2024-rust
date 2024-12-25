@@ -1,7 +1,9 @@
-use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
+use std::cmp::{Ordering, Reverse};
+use itertools::Position;
+
 #[path = "utils/grid_utils.rs"] mod utils;
-use crate::utils::{parse_grid, Pos, Direction};
+use crate::utils::{parse_grid, Pos, Direction, CARDINAL_DIRECTIONS, is_in_boundaries, get_value_from_grid_pos, Maze};
 
 advent_of_code::solution!(16);
 
@@ -69,7 +71,6 @@ fn dijkstra(start: Pos, goal: Pos, grid: &Vec<Vec<char>>) -> (Option<State>, Has
     while let Some(state) = heap.pop() {
         if state.position == goal {
             best_paths_cells.extend(&state.path);
-            println!("New best path found for state {:?}", state);
             best_state = Some(state);
             continue;
         }
@@ -119,12 +120,86 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(state.unwrap().cost)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    let (grid, start, end) = parse(input);
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+struct Tile {
+    position: Pos,
+    direction: Direction,
+    cost: usize,
+    history: Option<Vec<Pos>>,
+}
 
-    let (_, cells) = dijkstra(start, end, &grid);
+fn dijkstra_with_backtrack(
+    grid: &Vec<Vec<char>>,
+    start: Pos,
+    end: Pos,
+    min_cost: usize,
+) -> usize {
+    let mut to_visit = vec![vec![[min_cost, min_cost]; grid[0].len()]; grid.len()];
+    let mut prio = BinaryHeap::new();
+    let mut tiles = HashSet::new();
+    to_visit[start.x as usize][start.y as usize][Direction::East.get_axis()] = 0;
+    prio.push(Reverse(Tile {
+        position: start,
+        direction: Direction::East,
+        cost: 0,
+        history: Some(vec![]),
+    }));
+    while let Some(Reverse(Tile {
+                               position,
+                               direction,
+                               cost,
+                               history,
+                           })) = prio.pop()
+    {
+        let mut history = history.unwrap();
+        history.push(position);
 
-    Some(cells.len() as u32)
+        if cost > to_visit[position.x as usize][position.y as usize][direction.get_axis()] || cost > min_cost {
+            continue;
+        }
+
+        if position == end {
+            if cost == min_cost {
+                tiles.extend(history);
+            }
+
+            continue;
+        }
+        for dir in CARDINAL_DIRECTIONS {
+            let next_dir = dir;
+            let next_pos = position.neighbor(dir);
+            let mut next_cost = cost;
+            if next_dir == direction {
+                next_cost += 1;
+            } else {
+                next_cost += 1001;
+            }
+            if grid[next_pos.x as usize][next_pos.y as usize] == '#' {
+                continue;
+            }
+
+            if next_cost <= to_visit[next_pos.x as usize][next_pos.y as usize][direction.get_axis()] {
+                to_visit[next_pos.x as usize][next_pos.y as usize][direction.get_axis()] = next_cost;
+                prio.push(Reverse(Tile {
+                    position: next_pos,
+                    direction: next_dir,
+                    cost: next_cost,
+                    history: Some(history.clone()),
+                }));
+            }
+        }
+    }
+
+    tiles.len()
+}
+
+pub fn part_two(input: &str) -> Option<usize> {
+    let maze = Maze::from(input);
+
+    let min_cost = maze.dijkstra();
+    let tile_count = maze.dijkstra_with_backtrack(min_cost, &Direction::East);
+
+    Some(tile_count)
 }
 
 #[cfg(test)]
