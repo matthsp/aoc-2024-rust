@@ -1,7 +1,7 @@
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::cmp::Ordering;
 #[path = "utils/grid_utils.rs"] mod utils;
-use crate::utils::{parse_grid, Pos, Direction, get_value_from_grid};
+use crate::utils::{parse_grid, Pos, Direction};
 
 advent_of_code::solution!(16);
 
