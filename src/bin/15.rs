@@ -1,22 +1,43 @@
-use crate::utils::{get_value_from_grid, parse_grid, Direction, Pos};
 #[path = "utils/grid_utils.rs"] mod utils;
+use crate::utils::{Direction, Pos};
 
 advent_of_code::solution!(15);
 
-fn parse(input: &str) -> (Vec<Vec<char>>, Vec<Direction>, Pos) {
-    let mut parts = input.split("\n\n");
-    let matrix = parse_grid(parts.next().unwrap());
+fn parse(input: &str, is_part_two: bool) -> (Vec<Vec<char>>, Vec<Direction>, Pos) {
+    let (grid, movements) = input.split_once("\n\n").unwrap();
+    let mut matrix: Vec<Vec<char>>;
     let mut start_pos: Pos = Pos { x: 0, y: 0 };
 
-    for i in 0..matrix.len() {
-        for j in 0..matrix[0].len() {
-            if matrix[i][j] == '@' {
-                start_pos = Pos::new(i as isize, j as isize);
+    if !is_part_two {
+        matrix = grid.lines().enumerate().map(
+            |(x, l)| {
+                l.chars().enumerate().map(|(y, c)| {
+                    if c == '@' {
+                        start_pos = Pos::new(x as isize, y as isize);
+                        return '.';
+                    }
+                    c
+                }).collect()
             }
-        }
+        ).collect();
+    } else {
+        matrix = grid.lines().enumerate().map(
+            |(x, l)| {
+                l.chars().enumerate().flat_map(|(y, c)| {
+                    match c {
+                        '@' => {
+                            start_pos = Pos::new(x as isize, y as isize);
+                            ['.', '.']
+                        },
+                        'O' => ['[', ']'],
+                        val => [val, val]
+                    }
+                }).collect()
+            }
+        ).collect();
     }
 
-    let moves: Vec<Direction> = parts.next().unwrap().chars().filter_map(|c| {
+    let moves: Vec<Direction> = movements.chars().filter_map(|c| {
         match c {
             '>' => Some(Direction::East),
             '<' => Some(Direction::West),
@@ -29,149 +50,66 @@ fn parse(input: &str) -> (Vec<Vec<char>>, Vec<Direction>, Pos) {
     (matrix, moves, start_pos)
 }
 
-fn get_and_move_all(matrix: &Vec<Vec<char>>, pos: Pos, dir: Direction) -> Option<Vec<Pos>> {
-    let mut zero_moved: Vec<Pos> = Vec::new();
-    let mut next_pos = pos;
-    let val = get_value_from_grid(&matrix, pos.x as usize, pos.y as usize).unwrap();
-
-    loop {
-        let new_pos = next_pos.neighbor(dir);
-        let next_val = get_value_from_grid(&matrix, new_pos.x as usize, new_pos.y as usize);
-
-        if next_val.is_none() || *next_val.unwrap() == '#' {
-            return None;
-        }
-
-        zero_moved.push(new_pos);
-        next_pos = new_pos;
-
-        if *next_val.unwrap() == '.' {
-            break;
-        }
-    }
-
-    Some(zero_moved)
-}
-
-fn move_dir(matrix: &mut Vec<Vec<char>>, pos: Pos, dir: Direction) -> Pos {
-    let new_pos = pos.neighbor(dir);
-
-    if let Some(val) = get_value_from_grid(&matrix, new_pos.x as usize, new_pos.y as usize) {
-        if *val == '[' {
-            let box_second_part = new_pos.neighbor(Direction::East);
-            if let Some(first_part) = get_and_move_all_zeroes(&matrix, new_pos, dir) {
-                let second_part = get_and_move_all(&matrix, box_second_part, dir).unwrap();
-
-                new_zeroes.iter().for_each(|&zero_pos| {
-                    matrix[zero_pos.x as usize][zero_pos.y as usize] = 'O';
-                });
-                matrix[new_pos.x as usize][new_pos.y as usize] = '@';
-                matrix[pos.x as usize][pos.y as usize] = '.';
-                return new_pos;
+fn calculate_coordinates_sum(matrix: &Vec<Vec<char>>) -> usize {
+    matrix.iter()
+        .enumerate()
+        .map(
+            |(x, l)| {
+               l.iter()
+                   .enumerate()
+                   .filter_map(
+                       |(y, c)| {
+                           if *c == 'O' {
+                               return Some(x * 100 + y);
+                           }
+                           None
+                       }
+                   )
+                   .sum::<usize>()
             }
-        } else if *val == ']' {
-            let box_second_part = new_pos.neighbor(Direction::West);
-            if let Some(first_part) = get_and_move_all_zeroes(&matrix, new_pos, dir) {
-                let second_part = get_and_move_all_zeroes(&matrix, box_second_part, dir).unwrap();
-                new_zeroes.iter().for_each(|&zero_pos| {
-                    matrix[zero_pos.x as usize][zero_pos.y as usize] = 'O';
-                });
-                matrix[new_pos.x as usize][new_pos.y as usize] = '@';
-                matrix[pos.x as usize][pos.y as usize] = '.';
-                return new_pos;
-            }
-        } else if *val == 'O' {
-            if let Some(new_zeroes) = get_and_move_all_zeroes(&matrix, new_pos, dir) {
-                new_zeroes.iter().for_each(|&zero_pos| {
-                    matrix[zero_pos.x as usize][zero_pos.y as usize] = 'O';
-                });
-                matrix[new_pos.x as usize][new_pos.y as usize] = '@';
-                matrix[pos.x as usize][pos.y as usize] = '.';
-                return new_pos;
-            }
-        } else if *val == '.' {
-            matrix[new_pos.x as usize][new_pos.y as usize] = '@';
-            matrix[pos.x as usize][pos.y as usize] = '.';
-            return new_pos;
-        }
-    }
-
-    pos
+        ).sum()
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
-    let (mut matrix, moves, pos) = parse(input);
+    let (mut matrix, moves, start) = parse(input, false);
 
-    let mut current_pos = pos;
+    let mut current_pos = start.clone();
+    for direction in moves {
+        let neighbor = current_pos.neighbor(direction);
 
-    moves.iter().for_each(|&dir| {
-        current_pos = move_dir(&mut matrix, current_pos, dir);
-    });
+        match matrix[neighbor.x as usize][neighbor.y as usize] {
+            '.' => current_pos = neighbor,
+            'O' => {
+                let mut boxes = vec![neighbor];
+                let mut next_cell = neighbor.neighbor(direction);
 
-    let mut result = 0;
-    matrix.iter().enumerate().for_each(|(i, l)| {
-        l.iter().enumerate().for_each(|(j, &c)| {
-            if c == 'O' {
-                result += i * 100 + j;
+                // Search for the complete list of boxes in the same direction
+                while matrix[next_cell.x as usize][next_cell.y as usize] == 'O' {
+                    boxes.push(next_cell);
+                    next_cell = next_cell.neighbor(direction);
+                }
+
+                // Move 'everything' if there is some available space
+                if matrix[next_cell.x as usize][next_cell.y as usize] == '.' {
+                    // In reality, we replace the neighbor pos by '.' (previous first box)
+                    matrix[neighbor.x as usize][neighbor.y as usize] = '.';
+                    // And push a new box in next_cell
+                    matrix[next_cell.x as usize][next_cell.y as usize] = 'O';
+                    current_pos = neighbor;
+                }
             }
-        })
-    });
-
-    for l in matrix {
-        for c in l {
-            print!("{}", c);
+            // Do nothing otherwise, it is a wall
+            _ => {}
         }
-        println!();
     }
 
-    Some(result)
-}
-
-fn reconfigure_map(matrix: &Vec<Vec<char>>) -> str {
-    matrix.iter().enumerate().map(
-        |(i, l)| {
-            l.iter().enumerate().map(
-                |(j, c)| match c {
-                    '@' => "@.",
-                    '#' => "##",
-                    'O' => "[]",
-                    _ => "..",
-                }
-            ).join()
-        }
-    ).join('\n')
+    Some(calculate_coordinates_sum(&matrix))
 }
 
 pub fn part_two(input: &str) -> Option<usize> {
-    let (temp_matrix) = parse(input);
-    // transform into new map, take new params into account ([] mostly)
-    let new_str = reconfigure_map(temp_matrix);
-    let (mut matrix, moves, pos) = parse(input);
+    let (matrix, moves, start) = parse(input, false);
 
-
-    let mut current_pos = pos;
-
-    moves.iter().for_each(|&dir| {
-        current_pos = move_dir(&mut matrix, current_pos, dir);
-    });
-
-    let mut result = 0;
-    matrix.iter().enumerate().for_each(|(i, l)| {
-        l.iter().enumerate().for_each(|(j, &c)| {
-            if c == '[' {
-                result += i * 100 + j;
-            }
-        })
-    });
-
-    for l in matrix {
-        for c in l {
-            print!("{}", c);
-        }
-        println!();
-    }
-
-    Some(result)
+    Some(0)
 }
 
 #[cfg(test)]
